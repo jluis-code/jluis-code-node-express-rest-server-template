@@ -8,17 +8,17 @@
     google: '',
 } */
 
-const {Schema, model, models} = require('mongoose');
+const { Schema, model, models } = require('mongoose');
 
 const rolEnum = {
     values: ['ADMIN_ROLE', 'USER_ROLE'],
     message: 'Rol is either ADMIN_ROLE, USER_ROLE'
-}; 
+};
 
 var enu = {
     values: ['pending', 'accept', 'decline']
-  , message: 'Status is required.'
-  }
+    , message: 'Status is required.'
+}
 
 const UsuarioSchema = Schema({
     name: {
@@ -52,8 +52,9 @@ const UsuarioSchema = Schema({
     },
 });
 
-UsuarioSchema.methods.toJSON = function() {
-    const {__v, password, ...user} = this.toObject();
+UsuarioSchema.methods.toJSON = function () {
+    const { __v, password, _id, ...user } = this.toObject();
+    user.uid = _id;
     return user;
 }
 
