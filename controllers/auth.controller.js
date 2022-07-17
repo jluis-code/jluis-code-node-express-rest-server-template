@@ -1,8 +1,10 @@
 const { response } = require("express");
 const bcryptjs = require('bcryptjs');
 
-const User = require("../models/user");
 const { generarJWT } = require("../helpers/genetare-jwt");
+const { googleVerify } = require("../helpers/google-verify");
+
+const User = require('../models/user');
 
 const login = async (req = request, res = response) => {
 
@@ -55,6 +57,66 @@ const login = async (req = request, res = response) => {
 
 }
 
+const googleSigIn = async (req, res = response) => {
+    const { id_token } = req.body;
+
+    try {
+
+        const { name, picture, email } = await googleVerify(id_token);
+        console.log(name, picture, email);
+
+        let usuario = await User.findOne({ email });
+        console.log(usuario);
+
+
+        if (!usuario) {
+
+            const data = {
+                name,
+                email,
+                password: ':P',
+                img: picture,
+                google: true
+            }
+
+            usuario = new User({
+                name,
+                email,
+                password: ':P',
+                rol: 'USER_ROLE'
+            });
+
+            //usuario = new Usuario(data);
+            console.log(usuario);
+            await usuario.save();
+            console.log("usuario save");
+        }
+
+        //Si el usuario 
+        if (!usuario.estado) {
+            return res.status(401).json({
+                msg: "Usuario no autorizado"
+            });
+        }
+
+        const token = await generarJWT(usuario.id);
+
+        res.json({
+            usuario,
+            token
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            msg: "El tokem no se pudo verificar"
+        })
+    }
+
+
+}
+
 module.exports = {
-    login
+    login,
+    googleSigIn
 }
