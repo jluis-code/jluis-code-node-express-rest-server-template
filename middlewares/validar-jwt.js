@@ -39,7 +39,8 @@ const validarJWT = async (req, res = response, next) => {
 
     } catch (error) {
         return res.status(401).json({
-            msg: "No es un usuario autorizado"
+            msg: "No es un usuario autorizado",
+            error: error.name ? error.name : ''
         });
     }
 }
